@@ -5,7 +5,6 @@ import { EventEmitter } from './EventEmitter';
 export class UploadTask {
     public state: UploadTaskState;
     public events = new EventEmitter<UploadTaskState>();
-
     private abortController = new AbortController();
     private retries = 0;
 
@@ -13,18 +12,15 @@ export class UploadTask {
         private uploader: BaseUploader,
         private options: UploadOptions,
         private maxRetries = 2,
-        private retryDelay = 500 // base delay in ms
+        private retryDelay = 500
     ) {
         this.state = {
             id: crypto.randomUUID(),
             progress: 0,
-            status: 'queued',
+            status: 'queued'
         };
     }
 
-    /**
-     * Starts the upload process
-     */
     async start(): Promise<void> {
         this.update({ status: 'uploading' });
 
@@ -32,18 +28,11 @@ export class UploadTask {
             try {
                 const response = await this.uploader.upload(
                     this.options,
-                    (progress: number) => {
-                        this.update({ progress });
-                    },
+                    progress => this.update({ progress }),
                     this.abortController.signal
                 );
 
-                this.update({
-                    status: 'success',
-                    progress: 100,
-                    response,
-                });
-
+                this.update({ status: 'success', progress: 100, response });
                 return;
             } catch (error: unknown) {
                 if (this.abortController.signal.aborted) {
@@ -51,48 +40,30 @@ export class UploadTask {
                     return;
                 }
 
-                const message =
-                    error instanceof Error
-                        ? error.message
-                        : 'Unknown upload error';
+                const message = error instanceof Error ? error.message : 'Unknown upload error';
 
                 if (this.retries >= this.maxRetries) {
-                    this.update({
-                        status: 'error',
-                        error: message,
-                    });
+                    this.update({ status: 'error', error: message });
                     return;
                 }
 
                 this.retries++;
-
-                // Exponential backoff delay
-                const delay = this.retryDelay * Math.pow(2, this.retries - 1);
-                await this.sleep(delay);
+                await this.sleep(this.retryDelay * Math.pow(2, this.retries - 1));
             }
         }
     }
 
-    /**
-     * Cancels the upload
-     */
-    cancel(): void {
+    cancel() {
         this.abortController.abort();
         this.update({ status: 'cancelled' });
     }
 
-    /**
-     * Internal state updater
-     */
-    private update(update: Partial<UploadTaskState>): void {
+    private update(update: Partial<UploadTaskState>) {
         this.state = { ...this.state, ...update };
         this.events.emit(this.state);
     }
 
-    /**
-     * Utility sleep helper
-     */
-    private sleep(ms: number): Promise<void> {
-        return new Promise((resolve) => setTimeout(resolve, ms));
+    private sleep(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 }

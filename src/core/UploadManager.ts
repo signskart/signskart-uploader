@@ -6,10 +6,7 @@ export class UploadManager {
     private queue: UploadTask[] = [];
     private active = 0;
 
-    constructor(
-        private uploader: BaseUploader,
-        private concurrency = 3
-    ) { }
+    constructor(private uploader: BaseUploader, private concurrency = 3) { }
 
     add(options: UploadOptions) {
         const task = new UploadTask(this.uploader, options);
@@ -27,7 +24,6 @@ export class UploadManager {
         this.active++;
         await next.start();
         this.active--;
-
         this.process();
     }
 }

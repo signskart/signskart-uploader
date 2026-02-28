@@ -39,21 +39,9 @@ declare class UploadTask {
     private abortController;
     private retries;
     constructor(uploader: BaseUploader, options: UploadOptions, maxRetries?: number, retryDelay?: number);
-    /**
-     * Starts the upload process
-     */
     start(): Promise<void>;
-    /**
-     * Cancels the upload
-     */
     cancel(): void;
-    /**
-     * Internal state updater
-     */
     private update;
-    /**
-     * Utility sleep helper
-     */
     private sleep;
 }
 

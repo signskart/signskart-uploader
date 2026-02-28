@@ -30,25 +30,16 @@ var UploadTask = class {
       status: "queued"
     };
   }
-  /**
-   * Starts the upload process
-   */
   async start() {
     this.update({ status: "uploading" });
     while (this.retries <= this.maxRetries) {
       try {
         const response = await this.uploader.upload(
           this.options,
-          (progress) => {
-            this.update({ progress });
-          },
+          (progress) => this.update({ progress }),
           this.abortController.signal
         );
-        this.update({
-          status: "success",
-          progress: 100,
-          response
-        });
+        this.update({ status: "success", progress: 100, response });
         return;
       } catch (error) {
         if (this.abortController.signal.aborted) {
@@ -57,35 +48,22 @@ var UploadTask = class {
         }
         const message = error instanceof Error ? error.message : "Unknown upload error";
         if (this.retries >= this.maxRetries) {
-          this.update({
-            status: "error",
-            error: message
-          });
+          this.update({ status: "error", error: message });
           return;
         }
         this.retries++;
-        const delay = this.retryDelay * Math.pow(2, this.retries - 1);
-        await this.sleep(delay);
+        await this.sleep(this.retryDelay * Math.pow(2, this.retries - 1));
       }
     }
   }
-  /**
-   * Cancels the upload
-   */
   cancel() {
     this.abortController.abort();
     this.update({ status: "cancelled" });
   }
-  /**
-   * Internal state updater
-   */
   update(update) {
     this.state = { ...this.state, ...update };
     this.events.emit(this.state);
   }
-  /**
-   * Utility sleep helper
-   */
   sleep(ms) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
@@ -127,33 +105,26 @@ var S3Uploader = class extends BaseUploader {
     this.config = config;
   }
   async upload(options, onProgress, signal) {
-    const presignRes = await fetch(
-      `${this.config.apiBaseUrl}/s3/presign-upload`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fileName: options.fileName || options.file.name,
-          folder: options.folder,
-          contentType: options.file.type
-        })
-      }
-    );
+    const presignRes = await fetch(`${this.config.apiBaseUrl}/s3/presign-upload`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        fileName: options.fileName || options.file.name,
+        folder: options.folder,
+        contentType: options.file.type
+      })
+    });
     const { uploadUrl, key } = await presignRes.json();
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
-          const percent = event.loaded / event.total * 100;
-          onProgress(Math.round(percent));
+          onProgress(Math.round(event.loaded / event.total * 100));
         }
       };
       xhr.onload = () => {
         if (xhr.status === 200) {
-          resolve({
-            url: `${this.config.publicUrl}/${key}`,
-            provider: "s3"
-          });
+          resolve({ url: `${this.config.publicUrl}/${key}`, provider: "s3" });
         } else {
           reject(new Error("S3 upload failed"));
         }
@@ -185,26 +156,19 @@ var CloudinaryUploader = class extends BaseUploader {
       const xhr = new XMLHttpRequest();
       xhr.upload.onprogress = (event) => {
         if (event.lengthComputable) {
-          const percent = event.loaded / event.total * 100;
-          onProgress(Math.round(percent));
+          onProgress(Math.round(event.loaded / event.total * 100));
         }
       };
       xhr.onload = () => {
         const data = JSON.parse(xhr.responseText);
         if (xhr.status === 200 && data.secure_url) {
-          resolve({
-            url: data.secure_url,
-            provider: "cloudinary"
-          });
+          resolve({ url: data.secure_url, provider: "cloudinary" });
         } else {
           reject(new Error("Cloudinary upload failed"));
         }
       };
       xhr.onerror = () => reject(new Error("Cloudinary upload failed"));
-      xhr.open(
-        "POST",
-        `https://api.cloudinary.com/v1_1/${this.config.cloudName}/upload`
-      );
+      xhr.open("POST", `https://api.cloudinary.com/v1_1/${this.config.cloudName}/upload`);
       xhr.send(formData);
     });
   }

@@ -16,37 +16,30 @@ export class S3Uploader extends BaseUploader {
         onProgress: (percent: number) => void,
         signal?: AbortSignal
     ): Promise<UploadResponse> {
-        const presignRes = await fetch(
-            `${this.config.apiBaseUrl}/s3/presign-upload`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    fileName: options.fileName || options.file.name,
-                    folder: options.folder,
-                    contentType: options.file.type,
-                }),
-            }
-        );
+        const presignRes = await fetch(`${this.config.apiBaseUrl}/s3/presign-upload`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                fileName: options.fileName || options.file.name,
+                folder: options.folder,
+                contentType: options.file.type
+            })
+        });
 
         const { uploadUrl, key } = await presignRes.json();
 
         return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
 
-            xhr.upload.onprogress = (event) => {
+            xhr.upload.onprogress = event => {
                 if (event.lengthComputable) {
-                    const percent = (event.loaded / event.total) * 100;
-                    onProgress(Math.round(percent));
+                    onProgress(Math.round((event.loaded / event.total) * 100));
                 }
             };
 
             xhr.onload = () => {
                 if (xhr.status === 200) {
-                    resolve({
-                        url: `${this.config.publicUrl}/${key}`,
-                        provider: 's3',
-                    });
+                    resolve({ url: `${this.config.publicUrl}/${key}`, provider: 's3' });
                 } else {
                     reject(new Error('S3 upload failed'));
                 }
