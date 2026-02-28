@@ -16,7 +16,7 @@ export class S3Uploader extends BaseUploader {
         onProgress: (percent: number) => void,
         signal?: AbortSignal
     ): Promise<UploadResponse> {
-        const presignRes = await fetch(`${this.config.apiBaseUrl}/s3/presign-upload`, {
+        const presignRes = await fetch(`${this.config.apiBaseUrl}/api/s3/presign-upload`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
