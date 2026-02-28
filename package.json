@@ -1,6 +1,6 @@
 {
   "name": "@signskart/uploader",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Production-grade upload manager SDK with queue, progress tracking, retry logic, and multi-provider support (S3, Cloudinary).",
   "author": "Signskart",
   "license": "MIT",
