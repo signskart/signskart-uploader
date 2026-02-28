@@ -134,7 +134,7 @@ var S3Uploader = class extends BaseUploader {
     this.config = config;
   }
   async upload(options, onProgress, signal) {
-    const presignRes = await fetch(`${this.config.apiBaseUrl}/s3/presign-upload`, {
+    const presignRes = await fetch(`${this.config.apiBaseUrl}/api/s3/presign-upload`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
