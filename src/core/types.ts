@@ -9,7 +9,8 @@ export interface UploadOptions {
 
 export interface UploadResponse {
     url: string;
-    provider: UploadProvider;
+    provider: string;
+    key?: string;
 }
 
 export type UploadStatus =

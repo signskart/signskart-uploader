@@ -26,9 +26,13 @@ export class S3Uploader extends BaseUploader {
             })
         });
 
-        const { uploadUrl, key } = await presignRes.json();
+        if (!presignRes.ok) throw new Error('Failed to get presigned URL');
 
-        return new Promise((resolve, reject) => {
+        const { signedUrl, key } = await presignRes.json();
+
+        if (!signedUrl || !key) throw new Error('Invalid presign response');
+
+        return new Promise<UploadResponse>((resolve, reject) => {
             const xhr = new XMLHttpRequest();
 
             xhr.upload.onprogress = event => {
@@ -39,20 +43,24 @@ export class S3Uploader extends BaseUploader {
 
             xhr.onload = () => {
                 if (xhr.status === 200) {
-                    resolve({ url: `${this.config.publicUrl}/${key}`, provider: 's3' });
+                    resolve({
+                        url: `${this.config.publicUrl}/${key}`,
+                        provider: 's3',
+                        key,
+                    });
                 } else {
-                    reject(new Error('S3 upload failed'));
+                    reject(new Error(`S3 upload failed with status ${xhr.status}`));
                 }
             };
 
-            xhr.onerror = () => reject(new Error('S3 upload failed'));
+            xhr.onerror = () => reject(new Error('S3 upload network error'));
 
             signal?.addEventListener('abort', () => {
                 xhr.abort();
                 reject(new Error('Upload cancelled'));
             });
 
-            xhr.open('PUT', uploadUrl);
+            xhr.open('PUT', signedUrl);
             xhr.setRequestHeader('Content-Type', options.file.type);
             xhr.send(options.file);
         });
