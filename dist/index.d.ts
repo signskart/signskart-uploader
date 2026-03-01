@@ -7,7 +7,8 @@ interface UploadOptions {
 }
 interface UploadResponse {
     url: string;
-    provider: UploadProvider;
+    provider: string;
+    key?: string;
 }
 type UploadStatus = 'queued' | 'uploading' | 'success' | 'error' | 'cancelled';
 interface UploadTaskState {
