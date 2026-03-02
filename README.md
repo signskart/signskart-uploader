@@ -1,21 +1,41 @@
-# @signskart/uploader
+Here is your **fully updated, production-ready README** including:
 
-Production-grade Upload Manager SDK by Signskart.
+* ✅ Client + Server usage
+* ✅ Proper S3 presign setup
+* ✅ Next.js backend example
+* ✅ Express backend example
+* ✅ Architecture explanation
+* ✅ Clean professional structure
+* ✅ v2 structure with `/server` export
 
-Features:
-
-- 🚀 Upload queue
-- 🔁 Retry logic with exponential backoff
-- 📊 Real-time progress tracking
-- ❌ Cancel uploads
-- ⚡ Concurrency control
-- ☁ Multi-provider support (S3, Cloudinary)
-- 🧠 Fully typed (TypeScript)
-- 🌍 Works with React, Vue, Next.js, Vite
+You can replace your entire README with this.
 
 ---
 
-## 📦 Installation
+# 🚀 @signskart/uploader
+
+Production-grade Upload Manager SDK by **Signskart**.
+
+A powerful, fully-typed file upload SDK with queue management, retry logic, cancellation support, concurrency control, and multi-provider architecture (S3 + Cloudinary).
+
+---
+
+## ✨ Features
+
+* 🚀 Upload queue system
+* 🔁 Automatic retry with exponential backoff
+* 📊 Real-time progress tracking
+* ❌ Cancel uploads (AbortController support)
+* ⚡ Concurrency control
+* ☁ Multi-provider support (Amazon S3, Cloudinary)
+* 🧠 Fully typed (TypeScript)
+* 🌍 Works with React, Vue, Next.js, Vite, vanilla JS
+* 🔐 Secure S3 presigned upload support
+* 🖥 Optional server helper included
+
+---
+
+# 📦 Installation
 
 ```bash
 npm install @signskart/uploader
@@ -29,19 +49,37 @@ yarn add @signskart/uploader
 
 ---
 
+# 🏗 Architecture
+
+For **Amazon S3**, uploads require a backend to generate presigned URLs.
+
+Flow:
+
+Frontend → Backend (presign) → S3 → Frontend uploads directly
+
+Your AWS credentials NEVER reach the browser.
+
+Cloudinary does NOT require backend if using unsigned preset.
+
+---
+
 # 🚀 Quick Start
 
-## Using Amazon S3 (Presigned Upload)
+---
+
+# ☁ Using Amazon S3
+
+## 1️⃣ Frontend Setup
 
 ```ts
 import { UploadManager, S3Uploader } from '@signskart/uploader';
 
 const uploader = new S3Uploader({
-  apiBaseUrl: 'https://api.yourbackend.com',
+  presignEndpoint: '/api/s3/presign-upload',
   publicUrl: 'https://cdn.yoursite.com'
 });
 
-const manager = new UploadManager(uploader, 2); // concurrency = 2
+const manager = new UploadManager(uploader, 2);
 
 const task = manager.add({
   file,
@@ -55,7 +93,70 @@ task.events.subscribe((state) => {
 
 ---
 
-## Using Cloudinary
+## 2️⃣ Backend Setup (Next.js Example)
+
+```ts
+// app/api/s3/presign-upload/route.ts
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createS3PresignHandler } from '@signskart/uploader/server';
+
+const generatePresignedUpload = createS3PresignHandler({
+  region: process.env.AWS_REGION!,
+  accessKeyId: process.env.AWS_KEY!,
+  secretAccessKey: process.env.AWS_SECRET!,
+  bucket: process.env.AWS_S3_BUCKET!,
+  publicUrl: process.env.NEXT_PUBLIC_S3_PUBLIC_URL!,
+});
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const result = await generatePresignedUpload(body);
+    return NextResponse.json(result);
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to generate presigned URL' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+---
+
+## 3️⃣ Backend Setup (Express Example)
+
+```ts
+import express from 'express';
+import { createS3PresignHandler } from '@signskart/uploader/server';
+
+const app = express();
+app.use(express.json());
+
+const generatePresignedUpload = createS3PresignHandler({
+  region: process.env.AWS_REGION!,
+  accessKeyId: process.env.AWS_KEY!,
+  secretAccessKey: process.env.AWS_SECRET!,
+  bucket: process.env.AWS_S3_BUCKET!,
+  publicUrl: process.env.S3_PUBLIC_URL!,
+});
+
+app.post('/api/s3/presign-upload', async (req, res) => {
+  try {
+    const result = await generatePresignedUpload(req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to generate presigned URL' });
+  }
+});
+
+app.listen(3000);
+```
+
+---
+
+# ☁ Using Cloudinary (No Backend Required)
 
 ```ts
 import { UploadManager, CloudinaryUploader } from '@signskart/uploader';
@@ -77,18 +178,20 @@ const task = manager.add({
 
 # 🧠 API Reference
 
+---
+
 ## UploadManager
 
 ```ts
 new UploadManager(uploader, concurrency?)
 ```
 
-### Parameters:
+### Parameters
 
-| Parameter | Type | Default |
-|-----------|------|----------|
-| uploader | BaseUploader | required |
-| concurrency | number | 3 |
+| Parameter   | Type         | Default  |
+| ----------- | ------------ | -------- |
+| uploader    | BaseUploader | required |
+| concurrency | number       | 3        |
 
 ---
 
@@ -100,12 +203,12 @@ Returned from:
 const task = manager.add(options);
 ```
 
-### Properties:
+### Properties
 
-- `task.state`
-- `task.events.subscribe()`
+* `task.state`
+* `task.events.subscribe()`
 
-### Methods:
+### Methods
 
 ```ts
 task.start()
@@ -129,9 +232,10 @@ task.cancel()
 
 # 🔁 Retry Logic
 
-- Automatic retry
-- Exponential backoff
-- Default max retries: 2
+* Automatic retry
+* Exponential backoff
+* Default max retries: 2
+* Cancels if AbortController triggered
 
 ---
 
@@ -147,13 +251,25 @@ task.cancel();
 
 ```ts
 task.events.subscribe((state) => {
-  console.log(state.progress);
+  console.log(state.progress, state.status);
 });
+```
+
+State structure:
+
+```ts
+{
+  id: string;
+  progress: number;
+  status: 'queued' | 'uploading' | 'success' | 'error' | 'cancelled';
+  error?: string;
+  response?: UploadResponse;
+}
 ```
 
 ---
 
-# 🏗 Example React Usage
+# ⚛ Example React Usage
 
 ```tsx
 const handleUpload = (file: File) => {
@@ -167,13 +283,60 @@ const handleUpload = (file: File) => {
 
 ---
 
+# 🔐 Security Notes (Important)
+
+* AWS credentials must NEVER be exposed to frontend.
+* Always generate presigned URLs server-side.
+* Cloudinary unsigned preset must have restricted permissions.
+* Set proper S3 bucket CORS configuration.
+
+---
+
 # 🛠 Requirements
 
-- Modern browser (AbortController support)
-- Backend endpoint for S3 presign (if using S3)
+* Modern browser (AbortController support)
+* Node.js 18+ for server helper
+* Backend endpoint for S3 presign (if using S3)
+
+---
+
+# 📦 Package Exports
+
+Client:
+
+```ts
+import { UploadManager } from '@signskart/uploader';
+```
+
+Server helper:
+
+```ts
+import { createS3PresignHandler } from '@signskart/uploader/server';
+```
+
+---
+
+# 📈 Roadmap
+
+* Multipart uploads (100MB+)
+* Image compression plugin
+* Validation middleware
+* Signed download URLs
+* React hooks wrapper
 
 ---
 
 # 📜 License
 
 MIT © Signskart
+
+---
+
+If you want next, I can:
+
+* Turn this into an elite-level open source README (badges, diagrams, examples, comparison table)
+* Prepare it for GitHub launch
+* Write marketing description for npm
+* Add proper semantic versioning strategy
+
+Tell me your next move.
