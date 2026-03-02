@@ -179,10 +179,7 @@ var CloudinaryUploader = class extends BaseUploader {
     });
   }
 };
-export {
-  CloudinaryUploader,
-  S3Uploader,
-  UploadManager,
-  UploadTask
-};
+
+export { CloudinaryUploader, S3Uploader, UploadManager, UploadTask };
+//# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
