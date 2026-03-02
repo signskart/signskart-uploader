@@ -1,25 +1,42 @@
 {
   "name": "@signskart/uploader",
-  "version": "1.0.8",
-  "description": "Production-grade upload manager SDK with queue, progress tracking, retry logic, and multi-provider support (S3, Cloudinary).",
+  "version": "2.0.0",
+  "description": "Production-grade upload manager SDK with queue, progress tracking, retry logic, cancellation, and multi-provider support (S3, Cloudinary).",
   "author": "Signskart",
   "license": "MIT",
+
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
+
+  "files": ["dist"],
+
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./server": {
+      "import": "./dist/server/index.js",
+      "require": "./dist/server/index.cjs"
     }
   },
+
   "scripts": {
     "build": "tsup",
     "prepublishOnly": "npm run build"
   },
+
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.540.0",
+    "@aws-sdk/s3-request-presigner": "^3.540.0"
+  },
+
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+
   "keywords": [
     "signskart",
     "upload",
@@ -29,9 +46,5 @@
     "typescript",
     "file-upload",
     "sdk"
-  ],
-  "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
-  }
+  ]
 }
