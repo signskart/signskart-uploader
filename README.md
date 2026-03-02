@@ -12,9 +12,9 @@ You can replace your entire README with this.
 
 ---
 
-# 🚀 @signskart/uploader
+# 🚀 @ibreakloops/uploader
 
-Production-grade Upload Manager SDK by **Signskart**.
+Production-grade Upload Manager SDK by **ibreakloops**.
 
 A powerful, fully-typed file upload SDK with queue management, retry logic, cancellation support, concurrency control, and multi-provider architecture (S3 + Cloudinary).
 
@@ -38,13 +38,13 @@ A powerful, fully-typed file upload SDK with queue management, retry logic, canc
 # 📦 Installation
 
 ```bash
-npm install @signskart/uploader
+npm install @ibreakloops/uploader
 ```
 
 or
 
 ```bash
-yarn add @signskart/uploader
+yarn add @ibreakloops/uploader
 ```
 
 ---
@@ -72,7 +72,7 @@ Cloudinary does NOT require backend if using unsigned preset.
 ## 1️⃣ Frontend Setup
 
 ```ts
-import { UploadManager, S3Uploader } from '@signskart/uploader';
+import { UploadManager, S3Uploader } from '@ibreakloops/uploader';
 
 const uploader = new S3Uploader({
   presignEndpoint: '/api/s3/presign-upload',
@@ -99,7 +99,7 @@ task.events.subscribe((state) => {
 // app/api/s3/presign-upload/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createS3PresignHandler } from '@signskart/uploader/server';
+import { createS3PresignHandler } from '@ibreakloops/uploader/server';
 
 const generatePresignedUpload = createS3PresignHandler({
   region: process.env.AWS_REGION!,
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
 
 ```ts
 import express from 'express';
-import { createS3PresignHandler } from '@signskart/uploader/server';
+import { createS3PresignHandler } from '@ibreakloops/uploader/server';
 
 const app = express();
 app.use(express.json());
@@ -159,7 +159,7 @@ app.listen(3000);
 # ☁ Using Cloudinary (No Backend Required)
 
 ```ts
-import { UploadManager, CloudinaryUploader } from '@signskart/uploader';
+import { UploadManager, CloudinaryUploader } from '@ibreakloops/uploader';
 
 const uploader = new CloudinaryUploader({
   cloudName: 'your-cloud-name',
@@ -305,13 +305,13 @@ const handleUpload = (file: File) => {
 Client:
 
 ```ts
-import { UploadManager } from '@signskart/uploader';
+import { UploadManager } from '@ibreakloops/uploader';
 ```
 
 Server helper:
 
 ```ts
-import { createS3PresignHandler } from '@signskart/uploader/server';
+import { createS3PresignHandler } from '@ibreakloops/uploader/server';
 ```
 
 ---
@@ -328,7 +328,7 @@ import { createS3PresignHandler } from '@signskart/uploader/server';
 
 # 📜 License
 
-MIT © Signskart
+MIT © ibreakloops
 
 ---
 
