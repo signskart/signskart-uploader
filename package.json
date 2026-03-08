@@ -1,11 +1,14 @@
 {
   "name": "@signskart/uploader",
-  "version": "2.0.8",
+  "version": "2.0.9",
   "description": "Upload manager SDK for Node.js, React, Vite, and Next.js",
   "author": "Signskart",
   "license": "MIT",
   "types": "dist/index.d.ts",
-  "files": ["dist", "dist-mjs"],
+  "files": [
+    "dist",
+    "dist-mjs"
+  ],
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "exports": {
