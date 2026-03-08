@@ -1,25 +1,15 @@
-import { defineConfig } from 'tsup';
+import { defineConfig } from "tsup";
 
-export default defineConfig([
-    {
-        entry: ['src/index.ts'],
-        format: ['cjs', 'esm'],
-        dts: true,
-        sourcemap: true,
-        clean: true,
-        target: 'es2020',
-        splitting: false,
-        treeshake: true
+export default defineConfig({
+    entry: {
+        index: "src/index.ts",
+        "server/index": "src/server/index.ts",
     },
-    {
-        entry: ['src/server/index.ts'],
-        format: ['cjs', 'esm'],
-        dts: true,
-        sourcemap: true,
-        outDir: 'dist/server',
-        target: 'es2020',
-        platform: 'node',
-        splitting: false,
-        treeshake: true
-    }
-]);
+    format: ["esm", "cjs"],
+    dts: true,
+    sourcemap: true,
+    clean: true,
+    target: "es2020",
+    splitting: false,
+    treeshake: true
+});

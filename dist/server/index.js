@@ -20,7 +20,8 @@ function createS3PresignHandler(config) {
     if (!fileName || !contentType) {
       throw new Error("fileName and contentType are required");
     }
-    const key = `${folder || "uploads"}/${Date.now()}-${fileName}`;
+    const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const key = `${folder || "uploads"}/${Date.now()}-${safeFileName}`;
     const command = new clientS3.PutObjectCommand({
       Bucket: config.bucket,
       Key: key,

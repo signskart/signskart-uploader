@@ -34,7 +34,8 @@ export function createS3PresignHandler(config: PresignConfig) {
             throw new Error('fileName and contentType are required');
         }
 
-        const key = `${folder || 'uploads'}/${Date.now()}-${fileName}`;
+        const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const key = `${folder || 'uploads'}/${Date.now()}-${safeFileName}`;
 
         const command = new PutObjectCommand({
             Bucket: config.bucket,
