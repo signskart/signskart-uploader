@@ -1,5 +1,3 @@
-export { PresignConfig, PresignRequest, createS3PresignHandler } from './server/index.js';
-
 type UploadProvider = 's3' | 'cloudinary';
 interface UploadOptions {
     file: File;

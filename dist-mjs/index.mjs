@@ -1,6 +1,3 @@
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-
 // src/core/EventEmitter.ts
 var EventEmitter = class {
   constructor() {
@@ -182,40 +179,7 @@ var CloudinaryUploader = class extends BaseUploader {
     });
   }
 };
-function createS3PresignHandler(config) {
-  const s3 = new S3Client({
-    region: config.region,
-    credentials: {
-      accessKeyId: config.accessKeyId,
-      secretAccessKey: config.secretAccessKey
-    }
-  });
-  return async function generatePresignedUpload({
-    fileName,
-    contentType,
-    folder
-  }) {
-    if (!fileName || !contentType) {
-      throw new Error("fileName and contentType are required");
-    }
-    const safeFileName = fileName.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const key = `${folder || "uploads"}/${Date.now()}-${safeFileName}`;
-    const command = new PutObjectCommand({
-      Bucket: config.bucket,
-      Key: key,
-      ContentType: contentType
-    });
-    const signedUrl = await getSignedUrl(s3, command, {
-      expiresIn: config.expiresIn ?? 300
-    });
-    return {
-      signedUrl,
-      key,
-      publicUrl: `${config.publicUrl}/${key}`
-    };
-  };
-}
 
-export { CloudinaryUploader, S3Uploader, UploadManager, UploadTask, createS3PresignHandler };
+export { CloudinaryUploader, S3Uploader, UploadManager, UploadTask };
 //# sourceMappingURL=index.mjs.map
 //# sourceMappingURL=index.mjs.map
