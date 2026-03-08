@@ -4,12 +4,12 @@
   "description": "Production-grade upload manager SDK with queue, progress tracking, retry logic, cancellation, and multi-provider support (S3, Cloudinary).",
   "author": "Signskart",
   "license": "MIT",
-  "main": "dist/index.cjs",
-  "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "exports": {
     ".": {
       "import": "./dist/index.js",
