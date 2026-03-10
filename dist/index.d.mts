@@ -76,4 +76,23 @@ declare class CloudinaryUploader extends BaseUploader {
     upload(options: UploadOptions, onProgress: (percent: number) => void): Promise<UploadResponse>;
 }
 
-export { CloudinaryUploader, S3Uploader, UploadManager, type UploadOptions, type UploadProvider, type UploadResponse, type UploadStatus, UploadTask, type UploadTaskState };
+interface PresignConfig {
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    bucket: string;
+    publicUrl: string;
+    expiresIn?: number;
+}
+interface PresignRequest {
+    fileName: string;
+    contentType: string;
+    folder?: string;
+}
+declare function createS3PresignHandler(config: PresignConfig): ({ fileName, contentType, folder, }: PresignRequest) => Promise<{
+    signedUrl: string;
+    key: string;
+    publicUrl: string;
+}>;
+
+export { CloudinaryUploader, type PresignConfig, type PresignRequest, S3Uploader, UploadManager, type UploadOptions, type UploadProvider, type UploadResponse, type UploadStatus, UploadTask, type UploadTaskState, createS3PresignHandler };
