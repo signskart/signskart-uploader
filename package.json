@@ -1,6 +1,6 @@
 {
   "name": "@signskart/uploader",
-  "version": "2.0.11",
+  "version": "2.0.12",
   "description": "Upload manager SDK for Node.js, React, Vite, and Next.js",
   "author": "Signskart",
   "license": "MIT",
