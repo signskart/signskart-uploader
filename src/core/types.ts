@@ -1,4 +1,4 @@
-export type UploadProvider = 's3' | 'cloudinary';
+export type UploadProvider = 's3' | 'cloudinary' | 'firebase';
 
 export interface UploadOptions {
     file: File;
